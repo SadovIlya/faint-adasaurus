@@ -1,6 +1,0 @@
-test_hosts:
-     hosts:
-          ubuntu:
-               ansible_host: 
-               ansible_user: 
-               ansible_password:      
