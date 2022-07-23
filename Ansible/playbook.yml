@@ -8,16 +8,20 @@
   roles:    
     - geerlingguy.docker
 
+
   tasks:
     - name: Install Python
       raw: apt -y update && apt install -y python-is-python3 
       become: yes
-    - name: fdf
+
+    - name: Install Python3.10-venv
       shell: apt install -y python3.10-venv
       become: yes
-    - name: fdfs
+
+    - name: python3-docker
       shell: apt-get install -y python3-docker
       become: yes
+
     - name: Download AWS CLI bundle.
       shell: "cd /tmp && rm -rf /tmp/awscli* && curl 'https://s3.amazonaws.com/aws-cli/awscli-bundle.zip' -o 'awscli-bundle.zip'"
     
@@ -42,3 +46,37 @@
         state: started
         ports:     
         - "8081:80"
+
+    - name: install runner
+      shell: curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+    
+    - name: install
+      shell: apt-get install -y gitlab-runner
+
+    - name: install pip
+      shell: apt install -y python3-pip
+
+    - name: python-gitlab
+      shell: pip install --upgrade python-gitlab
+
+    - name: runnerw
+      shell: |
+        sudo gitlab-runner register \
+        --non-interactive \
+        --url "https://gitlab.com/" \
+        --registration-token "GR1348941FN86y46QegSyyaxjZUjx" \
+        --executor "shell" \  
+        --description "docker-runner" \
+        --maintenance-note "Free-form maintainer notes about this runner" \
+        --tag-list "aws" \
+        --run-untagged="true" \
+        --locked="false" \
+        --access-level="not_protected"
+      tags:
+         - runner
+
+    - name: verify runner
+      shell: gitlab-runner verify
+      tags:
+         - runner
+
