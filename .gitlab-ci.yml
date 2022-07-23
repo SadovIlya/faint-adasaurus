@@ -1,0 +1,8 @@
+stages:
+  - build
+
+jest-tests:
+  stage: build
+  script:
+    - cd Docker
+    - ls
