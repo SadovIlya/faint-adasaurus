@@ -6,5 +6,39 @@
       - name: docker
 
   roles:    
-    
     - geerlingguy.docker
+
+  tasks:
+    - name: Install Python
+      raw: apt -y update && apt install -y python-is-python3 
+      become: yes
+    - name: fdf
+      shell: apt install -y python3.10-venv
+      become: yes
+    - name: fdfs
+      shell: apt-get install -y python3-docker
+      become: yes
+    - name: Download AWS CLI bundle.
+      shell: "cd /tmp && rm -rf /tmp/awscli* && curl 'https://s3.amazonaws.com/aws-cli/awscli-bundle.zip' -o 'awscli-bundle.zip'"
+    
+    - name: Update repositories cache and install "unzip" package
+      apt:
+        name: unzip
+        update_cache: yes    
+    
+    - name: Unzip AWS CLI bundle.
+      shell: "cd /tmp && unzip awscli-bundle.zip"    
+    
+    - name: Run AWS CLI installer.
+      shell: "/tmp/awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws"    
+    
+    - name: Log into aws ecr docker registry      
+      shell: "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 529396670287.dkr.ecr.us-west-2.amazonaws.com"
+
+    - name: Restart a container
+      community.docker.docker_container:
+        name: myapplication
+        image: 529396670287.dkr.ecr.us-west-2.amazonaws.com/sadov-site:latest
+        state: started
+        ports:     
+        - "8081:80"
